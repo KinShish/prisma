@@ -11,7 +11,14 @@
 
 <script>
 export default {
-	name: 'App'
+	name: 'App',
+	created() {
+		/*this.axios
+			.get('')
+			.then((res) => {
+				console.log(res)
+			})*/
+	}
 }
 </script>
 <style>
