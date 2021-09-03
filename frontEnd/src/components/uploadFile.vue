@@ -1,17 +1,32 @@
-<template lang="html">
-	<b-dropdown id="dropdown-1" text="Dropdown Button" class="m-md-2">
-		<b-dropdown-item>First Action</b-dropdown-item>
-		<b-dropdown-item>Second Action</b-dropdown-item>
-		<b-dropdown-item>Third Action</b-dropdown-item>
-		<b-dropdown-divider></b-dropdown-divider>
-		<b-dropdown-item active>Active action</b-dropdown-item>
-		<b-dropdown-item disabled>Disabled action</b-dropdown-item>
-	</b-dropdown>
+<template lang="pug">
+	div
+		h1 upload
+		file-upload(
+			:directory="true"
+			:multiple="true"
+			:thread="3"
+			:drop="false"
+			:drop-directory="true"
+			@input-filter="$_image_inputFilter"
+			v-model="files"
+			ref="upload") Загрузить
 </template>
 
 <script>
 export default {
-
+	data(){
+		return{
+			files:[]
+		}
+	},
+	methods:{
+		$_image_inputFilter(e){
+			console.log(e)
+		}
+	},
+	components:{
+		'FileUpload':()=>import('vue-upload-component'),
+	}
 }
 </script>
 
