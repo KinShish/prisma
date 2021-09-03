@@ -1,3 +1,4 @@
 /api/node_modules/
 /.idea/
 /api/package-lock.json
+/frontEnd/node_modules/
