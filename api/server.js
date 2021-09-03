@@ -1,5 +1,4 @@
 const Hapi = require('@hapi/hapi');
-const hapiAuthJWT = require('hapi-auth-jwt2');
 const ip = require("ip");
 const logger=(pool,id_manager,id_company,type,description,url,params)=>{
     console.log(id_manager,id_company,type,description,url)
