@@ -1,0 +1,22 @@
+{
+	"modules": {
+
+	},
+	"server": {
+		"host": "192.168.1.95",
+		"port": 4050,
+		"plugins": ["swagger","laabr"],
+		"modules": ["upload"]
+	},
+	"swagger": {
+		"info": {
+			"title": "Prisma API",
+			"version": "0.0.1"
+		},
+		"tags":[{
+			"name":"API",
+			"description":"Все команды"
+		}]
+	}
+}
+
