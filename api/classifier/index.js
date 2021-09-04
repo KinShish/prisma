@@ -65,6 +65,120 @@ const companys= {
 	},
 	save() {
 		fs.writeFileSync('./company.json', JSON.stringify(this.array))
+	},
+	createDir(){
+		Object.keys(this.array).forEach(inn=>{
+			const dir="../end/"+this.array[inn].name.replace(/\"/g,'');
+			if (!fs.existsSync(dir)) {
+				fs.mkdirSync(dir);
+			}
+			Object.keys(this.array[inn].files).forEach(f=>{
+				switch (type){
+					case 'charter':
+						if (!fs.existsSync(dir+'/Досье по ЮЛ')) {
+							fs.mkdirSync(dir+'/Досье по ЮЛ');
+						}
+						if (!fs.existsSync(dir+'/Досье по ЮЛ/Юридическое досье')) {
+							fs.mkdirSync(dir+'/Досье по ЮЛ/Юридическое досье');
+						}
+						if (!fs.existsSync(dir+'/Досье по ЮЛ/Юридическое досье/Учредительные и иные внутренние документы (положения)')) {
+							fs.mkdirSync(dir+'/Досье по ЮЛ/Юридическое досье/Учредительные и иные внутренние документы (положения)');
+						}
+						fs.writeFileSync(dir+'/Досье по ЮЛ/Юридическое досье/Учредительные и иные внутренние документы (положения)/'+f.name,fs.readFileSync(f.oldName))
+						break
+					case 'position':
+						if (!fs.existsSync(dir+'/Досье по ЮЛ')) {
+							fs.mkdirSync(dir+'/Досье по ЮЛ');
+						}
+						if (!fs.existsSync(dir+'/Досье по ЮЛ/Юридическое досье')) {
+							fs.mkdirSync(dir+'/Досье по ЮЛ/Юридическое досье');
+						}
+						if (!fs.existsSync(dir+'/Досье по ЮЛ/Юридическое досье/Учредительные и иные внутренние документы (положения)')) {
+							fs.mkdirSync(dir+'/Досье по ЮЛ/Юридическое досье/Учредительные и иные внутренние документы (положения)');
+						}
+						fs.writeFileSync(dir+'/Досье по ЮЛ/Юридическое досье/Учредительные и иные внутренние документы (положения)/'+f.name,fs.readFileSync(f.oldName))
+						break
+					case 'buhReportingOne':
+						if (!fs.existsSync(dir+'/Досье по ЮЛ')) {
+							fs.mkdirSync(dir+'/Досье по ЮЛ');
+						}
+						if (!fs.existsSync(dir+'/Досье по ЮЛ/Финансовое досье')) {
+							fs.mkdirSync(dir+'/Досье по ЮЛ/Финансовое досье');
+						}
+						if (!fs.existsSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД')) {
+							fs.mkdirSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД');
+						}
+						if (!fs.existsSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД/Х Квартал')) {
+							fs.mkdirSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД/Х Квартал');
+						}
+						if (!fs.existsSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД/Х Квартал/Бухгалтерская отчетность')) {
+							fs.mkdirSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД/Х Квартал/Бухгалтерская отчетность');
+						}
+						fs.writeFileSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД/Х Квартал/Бухгалтерская отчетность/'+f.name,fs.readFileSync(f.oldName))
+						break
+					case 'buhReportingTwo':
+						if (!fs.existsSync(dir+'/Досье по ЮЛ')) {
+							fs.mkdirSync(dir+'/Досье по ЮЛ');
+						}
+						if (!fs.existsSync(dir+'/Досье по ЮЛ/Финансовое досье')) {
+							fs.mkdirSync(dir+'/Досье по ЮЛ/Финансовое досье');
+						}
+						if (!fs.existsSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД')) {
+							fs.mkdirSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД');
+						}
+						if (!fs.existsSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД/Х Квартал')) {
+							fs.mkdirSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД/Х Квартал');
+						}
+						if (!fs.existsSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД/Х Квартал/Бухгалтерская отчетность')) {
+							fs.mkdirSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД/Х Квартал/Бухгалтерская отчетность');
+						}
+						fs.writeFileSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД/Х Квартал/Бухгалтерская отчетность/'+f.name,fs.readFileSync(f.oldName))
+						break
+					case 'auditReport':
+						if (!fs.existsSync(dir+'/Досье по ЮЛ')) {
+							fs.mkdirSync(dir+'/Досье по ЮЛ');
+						}
+						if (!fs.existsSync(dir+'/Досье по ЮЛ/Финансовое досье')) {
+							fs.mkdirSync(dir+'/Досье по ЮЛ/Финансовое досье');
+						}
+						if (!fs.existsSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД')) {
+							fs.mkdirSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД');
+						}
+						if (!fs.existsSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД/Х Квартал')) {
+							fs.mkdirSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД/Х Квартал');
+						}
+						if (!fs.existsSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД/Х Квартал/Бухгалтерская отчетность')) {
+							fs.mkdirSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД/Х Квартал/Бухгалтерская отчетность');
+						}
+						fs.writeFileSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД/Х Квартал/Бухгалтерская отчетность/'+f.name,fs.readFileSync(f.oldName))
+						break
+					case 'descriptionActivision':
+						if (!fs.existsSync(dir+'/Досье по ГК')) {
+							fs.mkdirSync(dir+'/Досье по ГК');
+						}
+						if (!fs.existsSync(dir+'/Досье по ГК/Описание бизнеса')) {
+							fs.mkdirSync(dir+'/Досье по ГК/Описание бизнеса');
+						}
+						fs.writeFileSync(dir+'/Досье по ГК/Описание бизнеса/'+f.name,fs.readFileSync(f.oldName))
+						break
+					case 'solution':
+						if (!fs.existsSync(dir+'/Досье по ЮЛ')) {
+							fs.mkdirSync(dir+'/Досье по ЮЛ');
+						}
+						if (!fs.existsSync(dir+'/Досье по ЮЛ/Юридическое досье')) {
+							fs.mkdirSync(dir+'/Досье по ЮЛ/Юридическое досье');
+						}
+						if (!fs.existsSync(dir+'/Досье по ЮЛ/Юридическое досье/Документы, подтверждающие полномочия на совершение сделки')) {
+							fs.mkdirSync(dir+'/Досье по ЮЛ/Юридическое досье/Документы, подтверждающие полномочия на совершение сделки');
+						}
+						fs.writeFileSync(dir+'/Досье по ЮЛ/Юридическое досье/Документы, подтверждающие полномочия на совершение сделки/'+f.name,fs.readFileSync(f.oldName))
+						break
+				}
+			})
+
+		})
+
+
 	}
 }
 
