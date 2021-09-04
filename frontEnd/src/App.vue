@@ -11,6 +11,7 @@
 			:drop="false"
 			@input="$_selectFile"
 			@input-file="$_selectFile_progress"
+			@inpu-filter="$_selectFile_filter"
 		)
 		transition(mode="out-in" name="opacity")
 			div(v-if="step" key="1")
@@ -72,6 +73,28 @@ export default {
 		'FileUpload':()=>import('vue-upload-component'),
 	},
 	methods:{
+		$_selectFile_filter(newFile, oldFile) {
+			if (newFile && (!oldFile || newFile.file !== oldFile.file)) {
+				let flag=true;
+				if(this.old_files) {
+					this.old_files.forEach((f) => {
+						if (newFile.thumb === f.thumb) {
+							flag = false
+						}
+					});
+				}
+				if(flag) {
+					let URL = window.URL || window.webkitURL;
+					if (URL && URL.createObjectURL) {
+						newFile.blob = URL.createObjectURL(newFile.file)
+					}
+					newFile.thumb = '';
+					if (newFile.blob && newFile.type.substr(0, 6) === 'image/') {
+						newFile.thumb = newFile.blob
+					}
+				}
+			}
+		},
 		$_selectFile_progress(newFile){
 			console.log(newFile.progress)
 			//this.files=[];
