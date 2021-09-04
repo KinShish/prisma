@@ -38,7 +38,7 @@ const companys= {
 		const format=name.split('.')[name.split('.').length-1]
 		switch (type){
 			case 'charter':
-				this.array[inn].files['33a37ce4-c6a9-4dad-8424-707abd47c125'].push({name:'Устав_действующий.'+format, type})
+				this.array[inn].files['33a37ce4-c6a9-4dad-8424-707abd47c125'].push({name:'Устав_действующий.'+format, type,oldName:name})
 				break
 			case 'position':
 				this.array[inn].files['33a37ce4-c6a9-4dad-8424-707abd47c125'].push({name:'Устав_действующий.'+format, type})
@@ -63,6 +63,48 @@ const companys= {
 	},
 	save() {
 		fs.writeFileSync('./company.json', JSON.stringify(this.array))
+	},
+	createDir(){
+		Object.keys(this.array).forEach(inn=>{
+			const dir="../end/"+this.array[inn].name.replace(/\"/g,'');
+			if (!fs.existsSync(dir)) {
+				fs.mkdirSync(dir);
+			}
+			Object.keys(this.array[inn].files).forEach(f=>{
+				switch (type){
+					case 'charter':
+						if (!fs.existsSync(dir+'/Юридическое досье')) {
+							fs.mkdirSync(dir+'/Юридическое досье');
+						}
+						if (!fs.existsSync(dir+'/Юридическое досье/Учредительные и иные внутренние документы (положения)')) {
+							fs.mkdirSync(dir+'/Юридическое досье/Учредительные и иные внутренние документы (положения)');
+						}
+						fs.writeFileSync(dir+'/Юридическое досье/Учредительные и иные внутренние документы (положения)/'+f.name,fs.readFileSync(f.oldName))
+						break
+					case 'position':
+						this.array[inn].files['33a37ce4-c6a9-4dad-8424-707abd47c125'].push({name:'Устав_действующий.'+format, type})
+						break
+					case 'buhReportingOne':
+						this.array[inn].files['33a37ce4-c6a9-4dad-8424-707abd47c125'].push({name:'Устав_действующий.'+format, type})
+						break
+					case 'buhReportingTwo':
+						this.array[inn].files['33a37ce4-c6a9-4dad-8424-707abd47c125'].push({name:'Устав_действующий.'+format, type})
+						break
+					case 'auditReport':
+						this.array[inn].files['33a37ce4-c6a9-4dad-8424-707abd47c125'].push({name:'Устав_действующий.'+format, type})
+						break
+					case 'descriptionActivision':
+						this.array[inn].files['33a37ce4-c6a9-4dad-8424-707abd47c125'].push({name:'Устав_действующий.'+format, type})
+						break
+					case 'solution':
+						this.array[inn].files['33a37ce4-c6a9-4dad-8424-707abd47c125'].push({name:'Устав_действующий.'+format, type})
+						break
+				}
+			})
+
+		})
+
+
 	}
 }
 
