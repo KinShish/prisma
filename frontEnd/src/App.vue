@@ -2,28 +2,58 @@
 	.mainBlock
 		.logoBlock
 			img(src="./assets/logo.svg")
-		div(v-if="$route.name==='index'")
-			.mainBlockIndex
-				.man
-					.message Вас приветствует
-						b   PriSma
-						|,   я помогаю распределять
-					img(src="./assets/man.svg")
-					//.light
-						img(src="./assets/light.svg")
-				.uploadFile
-					.lineMan
-						img(src="./assets/smallMan.svg" v-for="item in countMan" :key="item")
-					label.blockUpload(for="file" v-if="!loadFile")
-						.uploadBtn загрузить файлы
-					.blockUpload(v-else)
-						b-progress(:value="progress" :max="100" show-progress animated)
-		file-upload(:directory="true" :multiple="true" :thread="3" :drop="false" :drop-directory="true" @input="$_image_inputFilter" ref="upload")
-		//transition(mode="out-in" name="opacity")
-			keep-alive
-				router-view
-		keep-alive
-			router-view
+		file-upload(
+			:post-action="$server+''"
+			v-model="files"
+			:directory="true"
+			:multiple="true"
+			:thread="3"
+			:drop="false"
+			@input="$_selectFile"
+			@input-file="$_selectFile_progress"
+		)
+		transition(mode="out-in" name="opacity")
+			div(v-if="step" key="1")
+				h1.title Загрузите файлы для анализа и классификации
+				transition(name="opacity" mode="out-in")
+					.blockLoad(v-if="!load")
+						label(for="file") Загрузить файл
+					b-progress.myProgress(v-else :max="100" show-progress animated)
+						b-progress-bar(:value="progressLoad" :label="`${((progressLoad / 100) * 100).toFixed(2)}%`")
+			div(v-else key="2")
+				h1.title Результат работы
+					b PriSma
+				.resultBlock
+					.headerBlock
+						.name Имя компании: ООО "АЛНА"
+						div ИНН: 1234567890
+						.blockVerif Проверено по базам ФНС
+					span
+						.innerBlock Всего загружено
+							b 100
+						.innerBlock Распознано
+							b 100
+						.innerBlock Классифицировано
+							b 100
+							.btnInfo(@click="$refs.modalSex.show()") Подробнее
+						.innerBlock Не распознано
+							b 100
+							.btnInfo(@click="$refs.modalErr.show()") Подробнее
+					span(v-if="!load")
+						label.uploadAfter(for="file") Загрузить недостающие файлы
+						.uploadAfter(@click="$_clearAll") Начать заново
+					b-progress.myProgress(v-else :max="100" show-progress animated)
+						b-progress-bar(:value="progressLoad" :label="`${((progressLoad / 100) * 100).toFixed(2)}%`")
+		b-modal(hide-footer hide-header centered ref="modalErr" size="lg")
+			.modalContent
+				h3 Не распознаные файлы
+				.fileBlockInfo(v-for="item in 5") {{item}}. файл 1
+				.btnModal(@click="$refs.modalErr.hide()") Закрыть
+		b-modal(hide-footer hide-header centered ref="modalSex"  size="lg")
+			.modalContent
+				h3 Классифицированные файлы
+				.fileBlockInfo(v-for="item in 5") {{item}}. файл 1
+				.btnModal(@click="$refs.modalSex.hide()") Закрыть
 </template>
 
 <script>
@@ -31,41 +61,29 @@ export default {
 	name: 'App',
 	data(){
 		return{
-			access:['xlsx','xlsm','xlsb','xls','ods','fods','csv','txt','sylk','html','dif','dbf','rtf','prn','eth','pdf'],
-			spinner:false,
-			interval:null,
-			countMan:0,
-			loadFile:false,
-			progress:0
+			extensions:['xlsx','xlsm','xlsb','xls','ods','fods','csv','txt','sylk','html','dif','dbf','rtf','prn','eth','pdf'],
+			files:[],
+			load:false,
+			progressLoad:10,
+			step:true
 		}
 	},
 	components:{
 		'FileUpload':()=>import('vue-upload-component'),
 	},
 	methods:{
-		$_app_countSmallMan(){
-			this.loadFile=true;
-			this.interval=setInterval(()=>{
-				//
-				if(this.progress!==100){
-					this.progress++
-				}else{
-					this.spinner=false;
-					this.countMan=0;
-					this.$router.push('/result')
-					clearInterval(this.interval)
-				}
-				//
-				if(this.countMan!==6){
-					this.countMan++
-				}else{
-					this.countMan=1;
-				}
-			},700)
+		$_selectFile_progress(newFile){
+			console.log(newFile.progress)
+			//this.files=[];
 		},
-		$_image_inputFilter(files){
-			this.$_app_countSmallMan()
-			console.log(files)
+		$_selectFile(){
+			if(this.step){
+				console.log('новые')
+			}else{
+				console.log('дополнение')
+			}
+			this.step=!this.step
+			console.log(this.files)
 			/*setTimeout(()=>{
 				this.spinner=false;
 				this.$router.push('/result')
@@ -74,101 +92,151 @@ export default {
 			.then((res) => {
 				console.log(res)
 			})*/
+		},
+		$_clearAll(){
+			this.step=true;
 		}
 	},
 }
 </script>
 <style>
-	.mainBlock{
-		width: 1200px;
-		margin: 0 auto;
-		background: #E5E5E5;
+	html, body, #app, .mainBlock{
 		height: 100%;
-		min-height: 100vh;
+		background: #E5E5E5;
 	}
-	html{
-		height: 100vh;
-	}
-	.blockUpload{
-		background: white;
-		border-radius: 30px;
-		border: 3px dashed #6CB4CB;
-		padding: 130px;
+	.mainBlock{
 		display: grid;
 		place-content: center;
-		height: 350px;
-		width: 460px;
-		position: relative;
-	}
-	.blockUpload .progress{
-		width: 450px;
-		height: 50px;
-	}
-	.blockUpload .progress-bar{
-		background-color: #30149F;
-	}
-	.blockUpload .uploadBtn{
-		background: #F26126;
-		padding: 30px;
-		color: white;
-		text-align: center;
-		border-radius: 13px;
-	}
-	.mainBlockIndex{
-		display: flex;
-		padding-top: 250px;
-		position: relative;
-		margin: 0 auto;
-	}
-	.man{
-		flex: 1;
-		margin-top: -100px;
-		padding-left: 100px;
-	}
-	.man img{
-		height: 400px;
-	}
-	.uploadFile{
-		flex: 1;
-		display: grid;
-		place-content: center;
-		padding-right: 70px;
+		padding-top: 190px;
 	}
 	.logoBlock{
 		width: 100%;
 		text-align: right;
-		border-bottom: 4px solid #30149F;
+		border-bottom: 4px solid #003462;
 		padding-top: 15px;
-	}
-	.logoBlock img{
-		margin-bottom: -20px;
-	}
-	.message{
-		background: #F26126;
-		text-align: center;
-		padding: 20px;
-		color: white;
-		font-size: 25px;
-		border-radius: 30px;
-		position: relative;
-		right: -250px;
-		bottom: 30px;
-	}
-	.message:after{
-		content: '';
 		position: absolute;
-		border: 23px solid transparent;
-		border-left: 46px solid #F26126;
-		bottom: -16px;
-		left: -3px;
-		transform: rotate(12deg);
+		top: 0;
 	}
-	.lineMan{
-		padding-left: 5px;
-		min-height: 55px;
+	.title{
+		margin-top: 15px;
+		text-align: center;
 	}
-	.lineMan img{
-		margin-right: 19px;
+	.title b{
+		margin-left: 10px;
+		color: #003462;
+	}
+	.blockLoad{
+		display: grid;
+		place-content: center;
+		margin-top: 25px;
+	}
+	.blockLoad label{
+		background: #003462;
+		color: white;
+		padding: 21px 0;
+		border-radius: 13px;
+		font-size: 30px;
+		font-weight: bolder;
+		cursor: pointer;
+		width: 500px;
+		text-align: center;
+	}
+	.myProgress{
+		width: 500px;
+		margin: 0 auto;
+		height: 87px;
+		margin-top: 25px;
+	}
+	.myProgress .progress-bar{
+		background-color: #003462;
+	}
+	/*шаг 2 начало*/
+	.resultBlock{
+		border: 4px solid #003462;
+		box-sizing: border-box;
+		border-radius: 30px;
+		flex: 1;
+		color: #003462;
+		padding: 50px;
+		margin: 50px auto 0 auto;
+		min-width: 900px;
+	}
+	.resultBlock .myProgress{
+		width: 100%;
+		margin-bottom: 30px;
+	}
+	.innerBlock{
+		background: #FFFFFF;
+		border-radius: 60px;
+		width: 100%;
+		padding: 10px 20px;
+		margin-bottom: 15px;
+		line-height: 31px;
+		font-size: 24px;
+	}
+	.innerBlock b{
+		font-weight: bolder;
+		margin-left: 15px;
+		font-size: 26px;
+	}
+	.btnInfo{
+		background: #003462;
+		padding: 0 20px;
+		display: inline-block;
+		border-radius: 13px;
+		color: white;
+		float: right;
+		cursor: pointer;
+		font-size: 18px;
+	}
+	.uploadAfter{
+		background: #003462;
+		padding: 10px 30px;
+		border-radius: 10px;
+		font-size: 24px;
+		color: white;
+		text-align: center;
+		margin: 15px auto 0 auto;
+		display: block;
+		width: 420px;
+		cursor: pointer;
+	}
+	.headerBlock{
+		margin-bottom: 15px;
+	}
+	.headerBlock .name{
+		font-weight: bolder;
+		font-size: 20px;
+	}
+	.fileBlockInfo{
+		font-size: 16px;
+		line-height: 22px;
+		border-bottom: 2px solid #003462;
+		color: #003462;
+		padding: 15px 0;
+	}
+	.btnModal{
+		width: fit-content;
+		float: right;
+		margin-top: 30px;
+		padding: 10px 20px;
+		background: #003462;
+		cursor: pointer;
+		color: white;
+		border-radius: 13px;
+		font-size: 20px;
+	}
+	.blockVerif{
+		color: #F26126;
+		text-decoration: underline;
+		font-weight: bolder;
+	}
+	/*шаг 2 конец*/
+	.modalContent h3{
+		text-align: center;
+	}
+	.modal-content{
+		border-radius: 30px;
 	}
 	/*Анимация перехода начало*/
 	.opacity-enter-active {
@@ -180,26 +248,4 @@ export default {
 		transition: all .25s ease;
 	}
 	/*Анимация перехода конец*/
-	/*.light{ todo asdasdasdasdasdasdasdasdasdasd
-		position: absolute;
-		left: 258px;
-		z-index: -1;
-		top: 20px;
-		animation: rotateMan 5s ease infinite;
-		overflow: hidden;
-	}
-	.man img:nth-child(1) {
-		z-index: 3;
-	}
-	.man{
-		z-index: 1;
-	}
-	@keyframes rotateMan {
-		1%{
-			max-height: 0;
-		}
-		100%{
-			max-height: 100%;
-		}
-	}*/
 </style>

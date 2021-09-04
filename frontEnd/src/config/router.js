@@ -3,13 +3,6 @@ let routes = {
   path: '/',
   name:'index',
   component:()=> import('../App'),
-  children:[
-    {
-      path: 'result',
-      component:()=>import('../components/resultUpload'),
-      name:'result',
-    },
-  ]
 }
 export const router = new VueRouter({
   scrollBehavior(to, from, savedPosition) {
