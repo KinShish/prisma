@@ -3,7 +3,7 @@
 		.logoBlock
 			img(src="./assets/logo.svg")
 		file-upload(
-			:post-action="$server+''"
+			:post-action="$server+'upload'"
 			v-model="files"
 			:directory="true"
 			:multiple="true"
