@@ -1,15 +1,17 @@
 <template lang="pug">
 	div
 		div(v-if="$route.name==='index'")
-			.blockLogo
-				img(src="./assets/logo.png")
-				h1 PRISMA
-			file-upload(:directory="true" :multiple="true" :thread="3" :drop="false" :drop-directory="true" @input="$_image_inputFilter" ref="upload")
-			transition(mode="out-in" name="opacity")
-				label.uploadBlock(for="file" v-if="!spinner")
-					img(src="./assets/fileUpload.svg")
-					div Загрузить документы
-				mySpinner(v-else)
+			.row.col-12
+				.col-6
+					.tringleMan
+						.dialogBlock Вас приветствует призма, я помогаю распределять
+							.tringle
+						img(src="./assets/man.svg")
+				.col-6
+					h1 авторизация
+			//file-upload(:directory="true" :multiple="true" :thread="3" :drop="false" :drop-directory="true" @input="$_image_inputFilter" ref="upload")
+				div Загрузить документы
+				mySpinner
 		transition(mode="out-in" name="opacity")
 			keep-alive
 				router-view
@@ -44,30 +46,41 @@ export default {
 }
 </script>
 <style>
-	html,body{
-		background-color: black;
-		color: white;
+	html{
+		height: 100vh;
 	}
-	.blockLogo{
-		display: grid;
-		place-content: center;
-		text-align: center;
-		color: white;
+	body{
+		background: rgb(220,220,221);
+		background: -moz-linear-gradient(135deg, rgba(220,220,221,1) 0%, rgba(53,52,68,1) 100%);
+		background: -webkit-linear-gradient(135deg, rgba(220,220,221,1) 0%, rgba(53,52,68,1) 100%);
+		background: linear-gradient(135deg, rgba(220,220,221,1) 0%, rgba(53,52,68,1) 100%);
 	}
-	.uploadBlock{
-		color: white;
-		border: 2px solid #7ba4b6;
-		border-radius: 5px;
+	.tringleMan{
+		position: absolute;
+		width: -webkit-fit-content;
+		width: -moz-fit-content;
+		bottom: 150px;
+		left: 50px;
+	}
+	.dialogBlock{
+		background: red;
 		width: 250px;
-		height: 250px;
-		display: grid;
-		place-content: center;
+		position: relative;
+		left: 250px;
+		border-radius: 5px 5px 5px 0;
+		padding: 20px;
+		color: white;
 		font-size: 20px;
-		cursor: pointer;
-		margin: 50px auto 0 auto;
+		text-align: center;
 	}
-	.uploadBlock img{
-		height: 200px;
+	.dialogBlock:after{
+		content: '';
+		position: absolute;
+		left: -22px;
+		bottom: -26px;
+		border: 20px solid transparent;
+		border-top: 30px solid red;
+		transform: rotate(45deg);
 	}
 	/*Анимация перехода начало*/
 	.opacity-enter-active {
