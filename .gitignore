@@ -2,3 +2,5 @@
 /.idea/
 /api/package-lock.json
 /frontEnd/node_modules/
+/api/upload/
+/api/classifier/

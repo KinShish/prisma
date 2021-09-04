@@ -1,16 +1,27 @@
+const {uploadFiles}=require('../schem/upload');
 exports.plugin = {
     name:'upload',
     version:'0.0.1',
-    register: async (server)=>{
+    register: async (server,options)=>{
         server.route({
             method: 'POST',
             path: '/upload',
             config: {
                 async handler(req) {
-                    return "Есть"
+                    const data = req.payload;
+                    return await options.func.loadImg(req, data.files);
                 },
-                description: 'Просмотр объявления',
-                tags: ['api']
+                payload: {
+                    output: 'stream',
+                    parse: true,
+                    allow: 'multipart/form-data',
+                    maxBytes: 1024 * 1024 * 200,
+                    multipart: true
+                },
+                tags: ['api'],
+                validate: {
+                    payload: uploadFiles
+                }
             }
         });
     }
