@@ -12,7 +12,7 @@ Vue.use(VueAxios, axios)
 Vue.use(BootstrapVue)
 Vue.use(VueRouter)
 import {router} from './config/router'
-
+Vue.prototype.$server='http://192.168.1.95:3000/'
 Vue.config.productionTip = false
 let app = {
     initialize: function() {

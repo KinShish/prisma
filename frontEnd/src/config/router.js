@@ -6,12 +6,12 @@ let routes = {
   children:[
     {
       path: 'upload',
-      component:()=>import('../components/uploadFile'),
+      component:()=>import('../components/resultUpload'),
       name:'upload',
     },
     {
       path: 'upload',
-      component:()=>import('../components/uploadFile'),
+      component:()=>import('../components/resultUpload'),
       name:'upload',
     },
   ]
