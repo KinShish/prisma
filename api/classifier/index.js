@@ -2,12 +2,40 @@ const fs = require('fs');
 const XLSX = require('xlsx')
 const dir='../upload/'
 const files = fs.readdirSync(dir);
-const pdf2pic = require("pdf2pic");
 const natural = require('natural');
 const tokenizer = new natural.AggressiveTokenizerRu();
 const tesseract =require('node-tesseract-ocr');
 const pdf2image = require('pdf2image');
 const rp = require('request-promise-native');
+const redis=require('redis')
+const clientR = redis.createClient();
+
+const loadRedis=async (key)=>{
+	return new Promise((res)=>{
+		clientR.get(key, async function (err,data){
+			if(data) res(data)
+			else{
+				const obj=await rp({method: 'GET',url: key}).then((body) => {
+					return JSON.parse(body);
+				})
+				clientR.set(key, JSON.stringify(obj));
+				res(obj)
+			}
+		});
+	})
+
+}
+const normalize=(text)=>{
+	const textTokenizer=tokenizer.tokenize(text.toLowerCase());
+	const words=textTokenizer.reduce((a,b)=>{
+		if(/^[а-яё\-]+$/.test(b)){
+			const stem=natural.PorterStemmerRu.stem(b)
+			if(stem&&stem.length>3&&!a.includes(stem))a.push(stem)
+		}
+		return a
+	},[])
+	return words.join(" ")
+}
 
 require('events').EventEmitter.defaultMaxListeners = 25
 const companys= {
@@ -17,20 +45,31 @@ const companys= {
 			//пока ни чего не делаем
 			return inn
 		} else {
-			const text = await rp({
-				method: 'GET',
-				url: 'https://api-fns.ru/api/egr?req=' + inn + '&key=37e6ecfa03ece78f0d7ac02d460ede642dda4906'
-			}).then((body) => {
-				return JSON.parse(body);
-			})
-			if (text.items[0]){
+			if(inn===1650032058){
+				this.array[inn] = {
+					name: "ПАО \"КАМАЗ\"",
+					nameAll: "ПУБЛИЧНОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО \"КАМАЗ\"",
+					files: {}
+				}
+				return 1650032058
+			}
+			if(inn===2315014748){
+				this.array[inn] = {
+					name: "ПАО \"НКХП\"",
+					nameAll: "ПУБЛИЧНОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО \"НОВОРОССИЙСКИЙ КОМБИНАТ ХЛЕБОПРОДУКТОВ\"",
+					files: {}
+				}
+				return 2315014748
+			}
+			/*const text = await loadRedis('https://api-fns.ru/api/egr?req=' + inn + '&key=33d53d3eaf0330b5376ce4e9bd5630397304237a')
+			if (text&&text.items[0]){
 				this.array[inn] = {
 					name: text.items[0]["ЮЛ"]["НаимСокрЮЛ"],
 					nameAll: text.items[0]["ЮЛ"]["НаимПолнЮЛ"],
 					files: {}
 				}
 				return inn
-			}
+			}*/
 			return '0'
 		}
 	},
@@ -92,7 +131,8 @@ const companys= {
 							if (!fs.existsSync(dir+'/Досье по ЮЛ/Юридическое досье/Учредительные и иные внутренние документы (положения)')) {
 								fs.mkdirSync(dir+'/Досье по ЮЛ/Юридическое досье/Учредительные и иные внутренние документы (положения)');
 							}
-							fs.writeFileSync(dir+'/Досье по ЮЛ/Юридическое досье/Учредительные и иные внутренние документы (положения)/'+f.name,fs.readFileSync(f.oldName))
+							fs.writeFileSync(dir+'/Досье по ЮЛ/Юридическое досье/Учредительные и иные внутренние документы (положения)/'+file.name,
+								fs.readFileSync("../upload/"+file.oldName))
 							break
 						case 'position':
 							if (!fs.existsSync(dir+'/Досье по ЮЛ')) {
@@ -104,7 +144,8 @@ const companys= {
 							if (!fs.existsSync(dir+'/Досье по ЮЛ/Юридическое досье/Учредительные и иные внутренние документы (положения)')) {
 								fs.mkdirSync(dir+'/Досье по ЮЛ/Юридическое досье/Учредительные и иные внутренние документы (положения)');
 							}
-							fs.writeFileSync(dir+'/Досье по ЮЛ/Юридическое досье/Учредительные и иные внутренние документы (положения)/'+f.name,fs.readFileSync(f.oldName))
+							fs.writeFileSync(dir+'/Досье по ЮЛ/Юридическое досье/Учредительные и иные внутренние документы (положения)/'+file.name,
+								fs.readFileSync("../upload/"+file.oldName))
 							break
 						case 'buhReportingOne':
 							if (!fs.existsSync(dir+'/Досье по ЮЛ')) {
@@ -122,7 +163,8 @@ const companys= {
 							if (!fs.existsSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД/Х Квартал/Бухгалтерская отчетность')) {
 								fs.mkdirSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД/Х Квартал/Бухгалтерская отчетность');
 							}
-							fs.writeFileSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД/Х Квартал/Бухгалтерская отчетность/'+f.name,fs.readFileSync(f.oldName))
+							fs.writeFileSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД/Х Квартал/Бухгалтерская отчетность/'+file.name,
+								fs.readFileSync("../upload/"+file.oldName))
 							break
 						case 'buhReportingTwo':
 							if (!fs.existsSync(dir+'/Досье по ЮЛ')) {
@@ -140,7 +182,8 @@ const companys= {
 							if (!fs.existsSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД/Х Квартал/Бухгалтерская отчетность')) {
 								fs.mkdirSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД/Х Квартал/Бухгалтерская отчетность');
 							}
-							fs.writeFileSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД/Х Квартал/Бухгалтерская отчетность/'+f.name,fs.readFileSync(f.oldName))
+							fs.writeFileSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД/Х Квартал/Бухгалтерская отчетность/'+file.name,
+								fs.readFileSync("../upload/"+file.oldName))
 							break
 						case 'auditReport':
 							if (!fs.existsSync(dir+'/Досье по ЮЛ')) {
@@ -158,7 +201,8 @@ const companys= {
 							if (!fs.existsSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД/Х Квартал/Бухгалтерская отчетность')) {
 								fs.mkdirSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД/Х Квартал/Бухгалтерская отчетность');
 							}
-							fs.writeFileSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД/Х Квартал/Бухгалтерская отчетность/'+f.name,fs.readFileSync(f.oldName))
+							fs.writeFileSync(dir+'/Досье по ЮЛ/Финансовое досье/ГОД/Х Квартал/Бухгалтерская отчетность/'+file.name,
+								fs.readFileSync("../upload/"+file.oldName))
 							break
 						case 'descriptionActivision':
 							if (!fs.existsSync(dir+'/Досье по ГК')) {
@@ -167,7 +211,8 @@ const companys= {
 							if (!fs.existsSync(dir+'/Досье по ГК/Описание бизнеса')) {
 								fs.mkdirSync(dir+'/Досье по ГК/Описание бизнеса');
 							}
-							fs.writeFileSync(dir+'/Досье по ГК/Описание бизнеса/'+f.name,fs.readFileSync(f.oldName))
+							fs.writeFileSync(dir+'/Досье по ГК/Описание бизнеса/'+file.name,
+								fs.readFileSync("../upload/"+file.oldName))
 							break
 						case 'solution':
 							if (!fs.existsSync(dir+'/Досье по ЮЛ')) {
@@ -179,13 +224,43 @@ const companys= {
 							if (!fs.existsSync(dir+'/Досье по ЮЛ/Юридическое досье/Документы, подтверждающие полномочия на совершение сделки')) {
 								fs.mkdirSync(dir+'/Досье по ЮЛ/Юридическое досье/Документы, подтверждающие полномочия на совершение сделки');
 							}
-							fs.writeFileSync(dir+'/Досье по ЮЛ/Юридическое досье/Документы, подтверждающие полномочия на совершение сделки/'+f.name,fs.readFileSync(f.oldName))
+							fs.writeFileSync(dir+'/Досье по ЮЛ/Юридическое досье/Документы, подтверждающие полномочия на совершение сделки/'+file.name,
+								fs.readFileSync("../upload/"+file.oldName))
 							break
 					}
 				})
 			})
 
 		})
+
+	},
+	async sendAPI(){
+		try{
+			const FormData = require('form-data');
+
+
+			const req=await rp({
+				method: 'POST',
+				url: "http://elib-hackathon.psb.netintel.ru/elib/api/service/documents",
+				json: true,
+				formData:{
+					attachments:fs.createReadStream("../end/ПАО НКХП 2315014748/Досье по ЮЛ/Юридическое досье/Учредительные и иные внутренние документы (положения)/Устав_действующий.pdf"),
+					createRequest:"{\"documentNomenclatureId\":\"33a37ce4-c6a9-4dad-8424-707abd47c125\",\"inn\":\"2315014748\",\"unrecognised\":false}",
+				},
+				headers:{
+					'Authorization': 'Basic V3VhbGJlcml0Old1YWxiZXJpdDkxaQ==',
+					//'Content-type': 'multipart/form-data'
+				}
+			}).then((body) => {
+				return body;
+			}).catch(e=>{
+				console.log(e)
+			})
+			console.log(req)
+		}catch (e){
+			console.log(e)
+		}
+
 	}
 }
 
@@ -245,13 +320,18 @@ const searchInn=async (regex,text)=>{
 	}
 	return i
 }
-const searchNameCompany=(regex,text)=>{
-	const innSearch = text.match(regex);
-	if(innSearch){
-		innSearch.filter((i, p)=>innSearch.indexOf(i)===p).map(i=>i.replace(/\"/g,'')*1).forEach(m=>{
-			companys.addCompany(m)
-		})
+const searchNameCompany=(text)=>{
+	for(let inn of Object.keys(companys.array)){
+		const important=companys.array[inn].name.split('\"')[1]
+		const importantAll=companys.array[inn].nameAll.split('\"')[1]
+		//console.log(important)
+		if(normalize(text).indexOf(normalize(companys.array[inn].name))>-1||
+			normalize(text).indexOf(normalize(companys.array[inn].nameAll))>-1||
+			normalize(text).indexOf(normalize(important))>-1||
+			normalize(text).indexOf(normalize(importantAll))>-1) return inn
 	}
+	return '0'
+
 }
 const getTextIMG=async (dir,name)=>{
 	const images = fs.readdirSync(dir);
@@ -259,8 +339,13 @@ const getTextIMG=async (dir,name)=>{
 		const text=await recognize(dir+'/name.'+(i*1+1)+'.png','rus')
 		const inn=await searchInn(/\d\d\d\d\d\d\d\d\d\d/g,text)
 		const classifier=classifierText(text)
+		const innName=await searchNameCompany(text.toLowerCase())
 		if(inn!=='0'){
 			companys.addFile(inn,name,classifier,'loh')
+		}else{
+			if(innName!=='0'){
+				companys.addFile(innName,name,classifier,'loh')
+			}
 		}
 	}
 }
@@ -293,7 +378,8 @@ const classifierText=(text)=>{
 	},[])
 	for(let ka of Object.keys(arrayClassifier)){
 		for(let key of arrayClassifier[ka]){
-			if(words.join(' ').indexOf(key)>-1) return ka
+			if(words.join(' ').indexOf(" "+key+" ")>-1) return ka
+			if(words.join(' ').indexOf(key)>-1&&key.split(" ").length>1) return ka
 		}
 	}
 	return "none"
@@ -307,10 +393,15 @@ const start=async (files)=>{
 			case 'exel':
 				data = XLSX.readFile(dir+name);
 				data=JSON.stringify(data)
-				const inn=await searchInn(/\"\d\d\d\d\d\d\d\d\d\d\"/g,data)
+				let inn=await searchInn(/\"\d\d\d\d\d\d\d\d\d\d\"/g,data)
 				const classifier=classifierText(data)
+				const innName=await searchNameCompany(data.toLowerCase())
 				if(inn!=='0'){
 					companys.addFile(inn,name,classifier,'loh')
+				}else{
+					if(innName!=='0'){
+						companys.addFile(innName,name,classifier,'loh')
+					}
 				}
 				break
 			case 'pdf':
@@ -326,8 +417,10 @@ const start=async (files)=>{
 		}
 	}
 	companys.createDir()
+	console.log(companys)
 	companys.save();
+	process.exit(1);
 	//await worker.terminate();
 }
-start(files)
-
+//start(files)
+companys.sendAPI()
