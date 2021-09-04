@@ -2,12 +2,12 @@ const fs = require('fs');
 const XLSX = require('xlsx')
 const dir='../upload/'
 const files = fs.readdirSync(dir);
-const pdf2pic = require("pdf2pic");
 const natural = require('natural');
 const tokenizer = new natural.AggressiveTokenizerRu();
 const tesseract =require('node-tesseract-ocr');
 const pdf2image = require('pdf2image');
 const rp = require('request-promise-native');
+const axios = require('axios');
 const redis=require('redis')
 const clientR = redis.createClient();
 
@@ -235,7 +235,44 @@ const companys= {
 		})
 
 	},
-	sendAPI(){
+	async sendAPI(){
+		try{
+			const FormData = require('form-data');
+			const form = new FormData();
+			form.append("folder_id", "0");
+			form.append("filename", fs.createReadStream("../end/ПАО НКХП 2315014748/Досье по ЮЛ/Юридическое досье/Учредительные и иные внутренние документы (положения)/Устав_действующий.pdf"));
+			/*const req=await axios({
+				method: 'post',
+				url: 'http://elib-hackathon.psb.netintel.ru/elib/api/service/documents',
+				json:false,
+				data:"attachments='../end/ПАО НКХП 2315014748/Досье по ЮЛ/Юридическое досье/Учредительные и иные внутренние документы (положения)/Устав_действующий.pdf",
+				data:"createRequest={'documentNomenclatureId':'33a37ce4-c6a9-4dad-8424-707abd47c125','inn':'2315014748','unrecognised':true}",
+				headers:{
+					'Authorization': 'Basic V3VhbGJlcml0Old1YWxiZXJpdDkxaQ==',
+					//'Content-type': 'multipart/form-data'
+				}
+			});*/
+			const req=await rp({
+				method: 'POST',
+				url: "http://elib-hackathon.psb.netintel.ru/elib/api/service/documents",
+				json: true,
+				formData:{
+					attachments:fs.createReadStream("../end/ПАО НКХП 2315014748/Досье по ЮЛ/Юридическое досье/Учредительные и иные внутренние документы (положения)/Устав_действующий.pdf"),
+					createRequest:"{\"documentNomenclatureId\":\"33a37ce4-c6a9-4dad-8424-707abd47c125\",\"inn\":\"2315014748\",\"unrecognised\":false}",
+				},
+				headers:{
+					'Authorization': 'Basic V3VhbGJlcml0Old1YWxiZXJpdDkxaQ==',
+					//'Content-type': 'multipart/form-data'
+				}
+			}).then((body) => {
+				return body;
+			}).catch(e=>{
+				console.log(e)
+			})
+			console.log(req)
+		}catch (e){
+			console.log(e)
+		}
 
 	}
 }
@@ -398,5 +435,5 @@ const start=async (files)=>{
 	process.exit(1);
 	//await worker.terminate();
 }
-start(files)
-
+//start(files)
+companys.sendAPI()
