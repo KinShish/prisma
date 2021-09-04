@@ -5,14 +5,9 @@ let routes = {
   component:()=> import('../App'),
   children:[
     {
-      path: 'upload',
+      path: 'result',
       component:()=>import('../components/resultUpload'),
-      name:'upload',
-    },
-    {
-      path: 'upload',
-      component:()=>import('../components/resultUpload'),
-      name:'upload',
+      name:'result',
     },
   ]
 }

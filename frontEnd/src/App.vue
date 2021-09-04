@@ -33,6 +33,7 @@ export default {
 			this.spinner=true;
 			setTimeout(()=>{
 				this.spinner=false;
+				this.$router.push('/result')
 			},5000)
 			/*this.axios.post(this.$server+'',{files})
 			.then((res) => {
@@ -45,6 +46,7 @@ export default {
 <style>
 	html,body{
 		background-color: black;
+		color: white;
 	}
 	.blockLogo{
 		display: grid;
