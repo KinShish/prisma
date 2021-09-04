@@ -1,25 +1,29 @@
 <template lang="pug">
 	.mainBlock
+		.logoBlock
+			img(src="./assets/logo.svg")
 		div(v-if="$route.name==='index'")
-			.logoBlock
-				img(src="./assets/logo.svg")
 			.mainBlockIndex
 				.man
-					.message(@click="$_app_countSmallMan") Вас приветствует
-						b   PriSma,
-						|   я помогаю распределять
-					img(src="./assets/man.svg" :class="{'animMan':loadFile}")
+					.message Вас приветствует
+						b   PriSma
+						|,   я помогаю распределять
+					img(src="./assets/man.svg")
+					//.light
+						img(src="./assets/light.svg")
 				.uploadFile
 					.lineMan
 						img(src="./assets/smallMan.svg" v-for="item in countMan" :key="item")
 					label.blockUpload(for="file" v-if="!loadFile")
 						.uploadBtn загрузить файлы
 					.blockUpload(v-else)
-						b-spinner(height="100")
+						b-progress(:value="progress" :max="100" show-progress animated)
 		file-upload(:directory="true" :multiple="true" :thread="3" :drop="false" :drop-directory="true" @input="$_image_inputFilter" ref="upload")
-		transition(mode="out-in" name="opacity")
+		//transition(mode="out-in" name="opacity")
 			keep-alive
 				router-view
+		keep-alive
+			router-view
 </template>
 
 <script>
@@ -31,7 +35,8 @@ export default {
 			spinner:false,
 			interval:null,
 			countMan:0,
-			loadFile:false
+			loadFile:false,
+			progress:0
 		}
 	},
 	components:{
@@ -41,6 +46,16 @@ export default {
 		$_app_countSmallMan(){
 			this.loadFile=true;
 			this.interval=setInterval(()=>{
+				//
+				if(this.progress!==100){
+					this.progress++
+				}else{
+					this.spinner=false;
+					this.countMan=0;
+					this.$router.push('/result')
+					clearInterval(this.interval)
+				}
+				//
 				if(this.countMan!==6){
 					this.countMan++
 				}else{
@@ -49,13 +64,13 @@ export default {
 			},700)
 		},
 		$_image_inputFilter(files){
+			this.$_app_countSmallMan()
 			console.log(files)
-			this.spinner=true;
-			setTimeout(()=>{
+			/*setTimeout(()=>{
 				this.spinner=false;
 				this.$router.push('/result')
 			},5000)
-			/*this.axios.post(this.$server+'',{files})
+			this.axios.post(this.$server+'',{files})
 			.then((res) => {
 				console.log(res)
 			})*/
@@ -68,7 +83,8 @@ export default {
 		width: 1200px;
 		margin: 0 auto;
 		background: #E5E5E5;
-		height: 100vh;
+		height: 100%;
+		min-height: 100vh;
 	}
 	html{
 		height: 100vh;
@@ -84,11 +100,12 @@ export default {
 		width: 460px;
 		position: relative;
 	}
-	.blockUpload .spinner-border{
-		height: 100px;
-		width: 100px;
-		border-width: 7px;
-		color: #563BC2 !important;
+	.blockUpload .progress{
+		width: 450px;
+		height: 50px;
+	}
+	.blockUpload .progress-bar{
+		background-color: #30149F;
 	}
 	.blockUpload .uploadBtn{
 		background: #F26126;
@@ -111,17 +128,6 @@ export default {
 	.man img{
 		height: 400px;
 	}
-	.animMan{
-		animation: rotateMan 4.5s ease infinite;
-	}
-	@keyframes rotateMan {
-		1%{
-			transform: rotate(0deg);
-		}
-		100%{
-			transform: rotate(360deg);
-		}
-	}
 	.uploadFile{
 		flex: 1;
 		display: grid;
@@ -131,7 +137,7 @@ export default {
 	.logoBlock{
 		width: 100%;
 		text-align: right;
-		border-bottom: 4px solid #563BC2;
+		border-bottom: 4px solid #30149F;
 		padding-top: 15px;
 	}
 	.logoBlock img{
@@ -174,4 +180,26 @@ export default {
 		transition: all .25s ease;
 	}
 	/*Анимация перехода конец*/
+	/*.light{ todo asdasdasdasdasdasdasdasdasdasd
+		position: absolute;
+		left: 258px;
+		z-index: -1;
+		top: 20px;
+		animation: rotateMan 5s ease infinite;
+		overflow: hidden;
+	}
+	.man img:nth-child(1) {
+		z-index: 3;
+	}
+	.man{
+		z-index: 1;
+	}
+	@keyframes rotateMan {
+		1%{
+			max-height: 0;
+		}
+		100%{
+			max-height: 100%;
+		}
+	}*/
 </style>
