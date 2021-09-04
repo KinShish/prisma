@@ -1,14 +1,15 @@
 <template lang="pug">
 	div
-		div(v-if="$route.name==='index'" key="1")
+		div(v-if="$route.name==='index'")
 			.blockLogo
 				img(src="./assets/logo.png")
 				h1 PRISMA
 			file-upload(:directory="true" :multiple="true" :thread="3" :drop="false" :drop-directory="true" @input="$_image_inputFilter" ref="upload")
-			label.uploadBlock(for="file")
-				img(src="./assets/fileUpload.svg")
-				div Загрузить документы
-			router-link.d-block(to="/upload") to result upload page
+			transition(mode="out-in" name="opacity")
+				label.uploadBlock(for="file" v-if="!spinner")
+					img(src="./assets/fileUpload.svg")
+					div Загрузить документы
+				mySpinner(v-else)
 		transition(mode="out-in" name="opacity")
 			keep-alive
 				router-view
@@ -19,7 +20,8 @@ export default {
 	name: 'App',
 	data(){
 		return{
-			access:['xlsx','xlsm','xlsb','xls','ods','fods','csv','txt','sylk','html','dif','dbf','rtf','prn','eth','pdf']
+			access:['xlsx','xlsm','xlsb','xls','ods','fods','csv','txt','sylk','html','dif','dbf','rtf','prn','eth','pdf'],
+			spinner:false,
 		}
 	},
 	components:{
@@ -27,10 +29,15 @@ export default {
 	},
 	methods:{
 		$_image_inputFilter(files){
-			this.axios.post(this.$server+'',{files})
+			console.log(files)
+			this.spinner=true;
+			setTimeout(()=>{
+				this.spinner=false;
+			},5000)
+			/*this.axios.post(this.$server+'',{files})
 			.then((res) => {
 				console.log(res)
-			})
+			})*/
 		}
 	},
 }

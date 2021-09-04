@@ -8,6 +8,11 @@ import VueAxios from 'vue-axios'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
+
+import mySpinner from './components/mySpinner'
+
+Vue.component('mySpinner', mySpinner);
+
 Vue.use(VueAxios, axios)
 Vue.use(BootstrapVue)
 Vue.use(VueRouter)
