@@ -5,8 +5,68 @@ const files = fs.readdirSync(dir);
 const pdf2pic = require("pdf2pic");
 const natural = require('natural');
 const tokenizer = new natural.AggressiveTokenizerRu();
-const tesseract =require('tesseract.js');
-const worker = tesseract.createWorker();
+const tesseract =require('node-tesseract-ocr');
+const pdf2image = require('pdf2image');
+const rp = require('request-promise-native');
+
+require('events').EventEmitter.defaultMaxListeners = 25
+const companys= {
+	array: require('./company.json'),
+	async addCompany(inn) {
+		if (Object.keys(this.array).includes(inn.toString())) {
+			//пока ни чего не делаем
+			return inn
+		} else {
+			const text = await rp({
+				method: 'GET',
+				url: 'https://api-fns.ru/api/egr?req=' + inn + '&key=37e6ecfa03ece78f0d7ac02d460ede642dda4906'
+			}).then((body) => {
+				return JSON.parse(body);
+			})
+			if (text.items[0]){
+				this.array[inn] = {
+					name: text.items[0]["ЮЛ"]["НаимСокрЮЛ"],
+					nameAll: text.items[0]["ЮЛ"]["НаимПолнЮЛ"],
+					files: {}
+				}
+				return inn
+			}
+			return '0'
+		}
+	},
+	addFile(inn, name, type) {
+		const format=name.split('.')[name.split('.').length-1]
+		switch (type){
+			case 'charter':
+				this.array[inn].files['33a37ce4-c6a9-4dad-8424-707abd47c125'].push({name:'Устав_действующий.'+format, type})
+				break
+			case 'position':
+				this.array[inn].files['33a37ce4-c6a9-4dad-8424-707abd47c125'].push({name:'Устав_действующий.'+format, type})
+				break
+			case 'buhReportingOne':
+				this.array[inn].files['33a37ce4-c6a9-4dad-8424-707abd47c125'].push({name:'Устав_действующий.'+format, type})
+				break
+			case 'buhReportingTwo':
+				this.array[inn].files['33a37ce4-c6a9-4dad-8424-707abd47c125'].push({name:'Устав_действующий.'+format, type})
+				break
+			case 'auditReport':
+				this.array[inn].files['33a37ce4-c6a9-4dad-8424-707abd47c125'].push({name:'Устав_действующий.'+format, type})
+				break
+			case 'descriptionActivision':
+				this.array[inn].files['33a37ce4-c6a9-4dad-8424-707abd47c125'].push({name:'Устав_действующий.'+format, type})
+				break
+			case 'solution':
+				this.array[inn].files['33a37ce4-c6a9-4dad-8424-707abd47c125'].push({name:'Устав_действующий.'+format, type})
+				break
+		}
+
+	},
+	save() {
+		fs.writeFileSync('./company.json', JSON.stringify(this.array))
+	}
+}
+
+
 
 
 let i=0;
@@ -16,6 +76,7 @@ const file={
 	type:"",
 	getType(){
 		if(['xlsx','xlsm','xlsb','xls','ods','fods','csv','txt','sylk','html','dif','dbf','rtf','prn','eth'].includes(this.format)) return 'exel'
+		if(['pdf'].includes(this.format)) return 'pdf'
 		return 'non'
 	},
 	setFile(fileName){
@@ -24,7 +85,7 @@ const file={
 		this.type=this.getType();
 	}
 }
-const getTextPDF=async (dir,name)=>{
+/*const getTextPDF=async (dir,name)=>{
 	await new Promise((res)=>{
 		let pdfParser = new PDFParser(this,1);
 
@@ -36,94 +97,97 @@ const getTextPDF=async (dir,name)=>{
 		console.log(name)
 		pdfParser.loadPDF(dir+name);
 	})
-}
-const getPicPDF=async (dir,name)=>{
-	const options = {
-		density: 100,
+}*/
+const getPicPDF=async (dir,name,outDir)=>{
+	const converter = pdf2image.compileConverter({
+		density : 200,
+		quality : 100,
+		outputFormat : './'+outDir+'/name.%d',
+		outputType : 'png',
+		pages : '1'
+	});
+	console.log(dir+name)
+	await converter.convertPDF(dir+name);
+	/*const options = {
+		quality:0,
+		density: 330,
 		saveFilename: "name",
 		savePath: "./"+name,
 		format: "png",
-		width: 610,
-		height: 891
+		width: 1000,
+		height: null,
 	};
 	const storeAsImage = pdf2pic.fromPath(dir+name, options);
 	const pageToConvertAsImage = -1;
-	await storeAsImage.bulk(pageToConvertAsImage)
+	await storeAsImage.bulk(pageToConvertAsImage)*/
 }
-const getTextIMG=async (dir)=>{
+const recognize=(file,lang)=>{
+	return tesseract.recognize(file,{lang:lang,oem: 1,psm: 3,}).then((text)=>{
+		return text;
+	})
+}
+const searchInn=async (regex,text)=>{
+	let i ='0'
+	let innSearch = text.match(regex);
+	if(innSearch){
+		innSearch=innSearch.filter((i, p)=>innSearch.indexOf(i)===p).map(i=>i.replace(/\"/g,'')*1)
+		for(let inn of innSearch){
+			i=await companys.addCompany(inn)
+			if(i!=='0')return i
+		}
+	}
+	return i
+}
+const searchNameCompany=(regex,text)=>{
+	const innSearch = text.match(regex);
+	if(innSearch){
+		innSearch.filter((i, p)=>innSearch.indexOf(i)===p).map(i=>i.replace(/\"/g,'')*1).forEach(m=>{
+			companys.addCompany(m)
+		})
+	}
+}
+const getTextIMG=async (dir,name)=>{
 	const images = fs.readdirSync(dir);
 	for(let i in images){
-		await worker.load();
-		await worker.loadLanguage('rus');
-		await worker.initialize('rus');
-		const { data: { text } } = await worker.recognize(dir+'/name.'+(i*1+1)+'.png');
-		const regex = /\d\d\d\d\d\d\d\d\d\d/g;
-		const matches = text.match(regex);
-		if(matches)console.log(matches.filter((i, p)=>matches.indexOf(i)===p).map(i=>i.replace(/\"/g,'')*1));
-		return classifierText(text)
+		const text=await recognize(dir+'/name.'+(i*1+1)+'.png','rus')
+		const inn=await searchInn(/\d\d\d\d\d\d\d\d\d\d/g,text)
+		const classifier=classifierText(text)
+		if(inn!=='0'){
+			companys.addFile(inn,name,classifier,'loh')
+		}
 	}
 }
 const classifierText=(text)=>{
 	const arrayClassifier={
 		//Устав_действующий
-		charter:[
-			'устав',
-			'уставн капита',
-			'орга управлен',
-			'резервн фонд',
-			'бюллетен'
-		],
+		charter:['устав','уставн капита','орга управлен','резервн фонд','бюллетен'],
 		//Положение о СД
-		position:[
-			'положен совет директор',
-			'председател совет директор',
-			'письмен мнен',
-			'опросн лист',
-			'уведомлен проведен совет директор'
-		],
+		position:['положен совет директор','председател совет директор','письмен мнен','опросн лист','уведомлен проведен совет директор'],
 		//форма 1-(Условие если месяц =12 размещение папка = год ==>4кв)
 		//промежутночная форма 1-Дата (число,месяц,год) если месяц = 3 размещение папка = год ==>1кв и тп)
-		buhReportingOne:[
-			'бухгалтерск баланс',
-			'форм окуд',
-			'пасс'
-		],
+		buhReportingOne:['бухгалтерск баланс','форм окуд','пасс'],
 		//форма 2-Дата (число,месяц,год) (Условие если месяц =12 размещение папка = год ==>4кв)
 		//промежуточная форма 2- Дата (число,месяц,год) если месяц = 3 размещение папка = год ==>1кв и тп)
-		buhReportingTwo:[
-			'отчет финансов результат',
-			'форм окуд',
-			'чист прибыл',
-			'налог прибыл'
-		],
+		buhReportingTwo:['отчет финансов результат','форм окуд','чист прибыл','налог прибыл'],
 		//Аудиторское заключение
-		auditReport:[
-			'аудиторск заключен',
-			'сведен аудируем',
-			'сведен аудитор',
-			'основан выражен мнен',
-			'ответствен аудитор'
-		],
+		auditReport:['аудиторск заключен','сведен аудируем','сведен аудитор','основан выражен мнен','ответствен аудитор'],
 		//Описание_деятельности_ГК
-		descriptionActivision:[
-			'презентац компан',
-			'истор компан',
-			'обзор рынк',
-			'обзор компан'
-		],
+		descriptionActivision:['презентац компан','истор компан','обзор рынк','обзор компан'],
 		//Решение_назначение ЕИО
-		solution:[
-			'протокол совет директор',
-			'составлен протокол',
-			'избран генеральн директор',
-			'назначен генеральн директор',
-			'итог голосован',
-			'принят решен'
-		]
+		solution:['протокол совет директор','составлен протокол','избран генеральн директор','назначен генеральн директор','итог голосован','принят решен']
 	}
-	const textTokenizer=tokenizer.tokenize(text.toLowerCase()).join(" ");
-	for(let key of arrayClassifier.position){
-		if(textTokenizer.indexOf(tokenizer.tokenize(key.toLowerCase()).join(" "))>-1) return "position"
+	const textTokenizer=tokenizer.tokenize(text.toLowerCase());
+	const words=textTokenizer.reduce((a,b)=>{
+		if(/^[а-яё\-]+$/.test(b)){
+			const stem=natural.PorterStemmerRu.stem(b)
+			if(stem&&stem.length>3&&!a.includes(stem))a.push(stem)
+		}
+		return a
+	},[])
+	for(let ka of Object.keys(arrayClassifier)){
+		for(let key of arrayClassifier[ka]){
+			if(words.join(' ').indexOf(key)>-1) return ka
+		}
 	}
 	return "none"
 }
@@ -136,20 +200,26 @@ const start=async (files)=>{
 			case 'exel':
 				data = XLSX.readFile(dir+name);
 				data=JSON.stringify(data)
-				const regex = /\"\d\d\d\d\d\d\d\d\d\d\"/g;
-				const matches = data.match(regex);
-				if(matches)console.log(matches.filter((i, p)=>matches.indexOf(i)===p).map(i=>i.replace(/\"/g,'')*1));
-				break
-			default:
-				if (!fs.existsSync("./"+name)) {
-					fs.mkdirSync("./"+name);
+				const inn=await searchInn(/\"\d\d\d\d\d\d\d\d\d\d\"/g,data)
+				const classifier=classifierText(data)
+				if(inn!=='0'){
+					companys.addFile(inn,name,classifier,'loh')
 				}
-				await getPicPDF(dir,name)
-				console.log(name,await getTextIMG("./"+name))
+				break
+			case 'pdf':
+				if (!fs.existsSync("./"+i)) {
+					fs.mkdirSync("./"+i);
+				}
+				await getPicPDF(dir,name,i)
+				await getTextIMG("./"+i,name)
+				break;
+			default:
+				console.log('none')
 				break;
 		}
 	}
-	await worker.terminate();
+	companys.save();
+	//await worker.terminate();
 }
 start(files)
 
