@@ -3,6 +3,8 @@ const XLSX = require('xlsx')
 const dir='../upload/'
 const files = fs.readdirSync(dir);
 const pdf2pic = require("pdf2pic");
+const natural = require('natural');
+const tokenizer = new natural.AggressiveTokenizerRu();
 const tesseract =require('tesseract.js');
 const worker = tesseract.createWorker();
 
@@ -56,13 +58,21 @@ const getTextIMG=async (dir)=>{
 		await worker.initialize('rus');
 		const { data: { text } } = await worker.recognize(dir+'/name.'+(i*1+1)+'.png');
 		const regex = /\d\d\d\d\d\d\d\d\d\d/g;
-		console.log(text)
 		const matches = text.match(regex);
 		if(matches)console.log(matches.filter((i, p)=>matches.indexOf(i)===p).map(i=>i.replace(/\"/g,'')*1));
+		return classifierText(text)
 	}
 }
 const classifierText=(text)=>{
-	if(text.match(regex).length>0);
+	const arrayClassifier={
+		charter:["Устав","Уставный капитал","Органы управления","Резервный фонд","Бюллетени"],
+		position:["Положение о совете директоров","Председатель совета директоров","Письменное мнение","Опросный лист","Уведомление о проведении Совета директоров"]
+	}
+	const textTokenizer=tokenizer.tokenize(text.toLowerCase()).join(" ");
+	for(let key of arrayClassifier.position){
+		if(textTokenizer.indexOf(tokenizer.tokenize(key.toLowerCase()).join(" "))>-1) return "position"
+	}
+	return "none"
 }
 const start=async (files)=>{
 	for(let name of files){
@@ -82,7 +92,7 @@ const start=async (files)=>{
 					fs.mkdirSync("./"+name);
 				}
 				await getPicPDF(dir,name)
-				await getTextIMG("./"+name)
+				console.log(name,await getTextIMG("./"+name))
 				break;
 		}
 	}
