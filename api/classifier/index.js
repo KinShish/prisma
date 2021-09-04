@@ -41,22 +41,24 @@ const companys= {
 				this.array[inn].files['33a37ce4-c6a9-4dad-8424-707abd47c125'].push({name:'Устав_действующий.'+format, type})
 				break
 			case 'position':
-				this.array[inn].files['33a37ce4-c6a9-4dad-8424-707abd47c125'].push({name:'Устав_действующий.'+format, type})
+				this.array[inn].files['555ced1c-c169-4d61-9a82-348801494581'].push({name:'Положение о СД.'+format, type})
 				break
 			case 'buhReportingOne':
-				this.array[inn].files['33a37ce4-c6a9-4dad-8424-707abd47c125'].push({name:'Устав_действующий.'+format, type})
+				this.array[inn].files['4f501f4a-c665-4cc8-9715-6ed26e7819f2'].push({name:'Бухгалтерская отчетность_форма 1.'+format, type})
+				// для промежуточной 2e321818-4571-43ae-9e08-2ade54b83e14 Бухгалтерская отчетность_форма 1 _промежуточная
 				break
 			case 'buhReportingTwo':
-				this.array[inn].files['33a37ce4-c6a9-4dad-8424-707abd47c125'].push({name:'Устав_действующий.'+format, type})
+				this.array[inn].files['cabd193c-f9a9-4a9c-a4ae-80f0347adf40'].push({name:'Бухгалтерская отчетность_форма 2.'+format, type})
 				break
+			// для промежуточной 3b4f4647-f755-4100-bd63-059627107919 Бухгалтерская отчетность_форма 2 _промежуточная
 			case 'auditReport':
-				this.array[inn].files['33a37ce4-c6a9-4dad-8424-707abd47c125'].push({name:'Устав_действующий.'+format, type})
+				this.array[inn].files['16f35ccc-b90f-4731-8178-11f3e0e3ca20'].push({name:'Аудиторское заключение.'+format, type})
 				break
 			case 'descriptionActivision':
-				this.array[inn].files['33a37ce4-c6a9-4dad-8424-707abd47c125'].push({name:'Устав_действующий.'+format, type})
+				this.array[inn].files['a397c2cf-c5ad-4560-bc65-db4f79840f82'].push({name:'Описание_деятельности_ГК.'+format, type})
 				break
 			case 'solution':
-				this.array[inn].files['33a37ce4-c6a9-4dad-8424-707abd47c125'].push({name:'Устав_действующий.'+format, type})
+				this.array[inn].files['3af37c7f-d8b1-46de-98cc-683b0ffb3513'].push({name:'Решение_назначение ЕИО.'+format, type})
 				break
 		}
 
