@@ -28,6 +28,7 @@
 	position: relative;
 }
 .zoneSpin{
+	top: 0;
 	position:absolute;
 	margin-left: auto;
 	margin-right: auto;
