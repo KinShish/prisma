@@ -66,9 +66,6 @@ const companys= {
 	}
 }
 
-
-
-
 let i=0;
 const file={
 	name:"",
@@ -106,20 +103,7 @@ const getPicPDF=async (dir,name,outDir)=>{
 		outputType : 'png',
 		pages : '1'
 	});
-	console.log(dir+name)
 	await converter.convertPDF(dir+name);
-	/*const options = {
-		quality:0,
-		density: 330,
-		saveFilename: "name",
-		savePath: "./"+name,
-		format: "png",
-		width: 1000,
-		height: null,
-	};
-	const storeAsImage = pdf2pic.fromPath(dir+name, options);
-	const pageToConvertAsImage = -1;
-	await storeAsImage.bulk(pageToConvertAsImage)*/
 }
 const recognize=(file,lang)=>{
 	return tesseract.recognize(file,{lang:lang,oem: 1,psm: 3,}).then((text)=>{
