@@ -13,7 +13,7 @@ Vue.use(VueAxios, axios)
 Vue.use(BootstrapVue)
 Vue.use(VueRouter)
 import {router} from './config/router'
-Vue.prototype.$server='http://kinshish.ru/api/'
+Vue.prototype.$server='http://kinshish.ru/'
 Vue.config.productionTip = false
 new Vue({
     router,
