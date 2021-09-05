@@ -13,7 +13,7 @@ Vue.use(VueAxios, axios)
 Vue.use(BootstrapVue)
 Vue.use(VueRouter)
 import {router} from './config/router'
-Vue.prototype.$server='http://localhost:3000/'
+Vue.prototype.$server='http://kinshish.ru/api/'
 Vue.config.productionTip = false
 let app = {
     initialize: function() {
