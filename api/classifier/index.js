@@ -11,15 +11,17 @@ const redis=require('redis')
 const clientR = redis.createClient();
 let configClassifier=require('./classifierConfig.json')
 
-const loadRedis=async (key)=>{
+const loadRedis=async (key,inn)=>{
 	return new Promise((res)=>{
-		clientR.get(key, async function (err,data){
-			if(data) res(data)
+		clientR.get(inn+key, async function (err,data){
+			if(data) res(JSON.parse(data))
 			else{
-				const obj=await rp({method: 'GET',url: key}).then((body) => {
+				const obj=await rp({method: 'POST',url: key,body:JSON.stringify({query:inn}),headers:{"Content-Type": "application/json",
+						"Accept": "application/json",
+						"Authorization": "Token 3e8291401194d2a5e3eb9c09aad7ce8e4d3dcb07"}}).then((body) => {
 					return JSON.parse(body);
 				})
-				clientR.set(key, JSON.stringify(obj));
+				clientR.set(inn+key, JSON.stringify(obj));
 				res(obj)
 			}
 		});
@@ -46,21 +48,14 @@ const companys= {
 			//пока ни чего не делаем
 			return inn
 		} else {
-			if(inn===1650032058){
+			const text = await loadRedis('https://suggestions.dadata.ru/suggestions/api/4_1/rs/findById/party',inn)
+			if (text&&text.suggestions[0]){
 				this.array[inn] = {
-					name: "ПАО \"КАМАЗ\"",
-					nameAll: "ПУБЛИЧНОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО \"КАМАЗ\"",
+					name: text.suggestions[0].data.name.short_with_opf,
+					nameAll: text.suggestions[0].data.name.full_with_opf,
 					files: {}
 				}
-				return 1650032058
-			}
-			if(inn===2315014748){
-				this.array[inn] = {
-					name: "ПАО \"НКХП\"",
-					nameAll: "ПУБЛИЧНОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО \"НОВОРОССИЙСКИЙ КОМБИНАТ ХЛЕБОПРОДУКТОВ\"",
-					files: {}
-				}
-				return 2315014748
+				return inn
 			}
 			if(inn==='error'){
 
@@ -79,15 +74,6 @@ const companys= {
 				}
 				return 'none'
 			}
-			/*const text = await loadRedis('https://api-fns.ru/api/egr?req=' + inn + '&key=33d53d3eaf0330b5376ce4e9bd5630397304237a')
-			if (text&&text.items[0]){
-				this.array[inn] = {
-					name: text.items[0]["ЮЛ"]["НаимСокрЮЛ"],
-					nameAll: text.items[0]["ЮЛ"]["НаимПолнЮЛ"],
-					files: {}
-				}
-				return inn
-			}*/
 			return '0'
 		}
 	},
