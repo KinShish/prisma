@@ -20,6 +20,7 @@
     
 в папке /frontEnd выполнить
     npm run serve
+перейдите на http://localhost:8080/
 
 # Создано с помощью
 Node.js <br>
