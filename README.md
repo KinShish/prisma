@@ -6,8 +6,22 @@
 2.Подождите пока "Prisma" проанализирует файлы и вынесет результат в определенные графы, затем можете радоваться результатом!
 <br> ![Снимок экрана 2021-09-04 в 19 24 20](https://user-images.githubusercontent.com/75037261/132104881-93d833cf-d85b-40b4-a122-4850e7fd567e.png)<br>
 # Установка
-npm install...
+
+в папке /api выполнить
+    npm install
+    
+в папке /frontEnd выполнить
+    npm install   
+    
 # Развертывание
+
+в папке /api выполнить
+    npm start
+    
+в папке /frontEnd выполнить
+    npm run serve
+перейдите на http://localhost:8080/
+
 # Создано с помощью
 Node.js <br>
 Vue.js <br>
