@@ -5,11 +5,9 @@ const logger=(pool,id_manager,id_company,type,description,url,params)=>{
 }
 
 const init = async (configs) => {
-    const host = ip.address() || configs.server.host;
     const port = process.env.PORT || configs.server.port;
     const server = new Hapi.Server({
         debug: { request: ['error'] },
-        host,
         port,
         routes: {
             timeout: {
