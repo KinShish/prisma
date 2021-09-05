@@ -7,7 +7,7 @@ const register = async (server)=> {
                         onPostStart: ':time[utc] :start :level :message' ,
                         log:':time[utc] :level :message',
                         request:':time[utc] :level :message',
-                        response:':time[utc] :method :remoteAddress :url   :status  (:responseTime ms)',//:payload
+                        response:':time[utc] :method :remoteAddress :url :status  (:responseTime ms)',//:payload
                         'request-error':':time[utc] :level :error'
                     },
                     tokens: { start:  () => '[start]' },

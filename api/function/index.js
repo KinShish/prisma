@@ -1,17 +1,21 @@
 const fs = require('fs');
-const loadImg= async (req,files)=>{
-	let name='',path='';
+const loadFile= async (req,files)=>{
+	let path='';
 	const array_name=[];
-	let dir = "./upload/company/";
+	let dir = "./upload";
 	if (!fs.existsSync(dir)) {
 		fs.mkdirSync(dir);
 	}
 	try {
 		for(let file of files){
-			console.log(file)
-			name=new Date().getTime()+array_name.length+".jpg";
+			const name=encodeURI(file.hapi.filename)
 			array_name.push(name)
-			await Promise.all([file.pipe(fs.createWriteStream(dir + "/"+name))])
+			const writer = fs.createWriteStream(dir+'/'+name)
+			file.pipe(writer)
+			await new Promise((resolve, reject) => {
+				writer.on('finish', resolve)
+				writer.on('error', reject)
+			})
 		}
 		return {err:false, text:"Файлы загружены",array_name}
 	}catch (err) {
@@ -24,4 +28,4 @@ const loadImg= async (req,files)=>{
 		return {err:true,text:"Произошла ошибка при подключении к базе данных, повторите попытку позже"}
 	}
 }
-module.exports={loadImg}
+module.exports={loadFile}
